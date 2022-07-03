@@ -202,8 +202,10 @@ export function defineReactive(
       } else {
         val = newVal
       }
+      // 对新的值进行observe使新的值也变为响应式对象
       childOb = !shallow && observe(newVal)
       if (__DEV__) {
+        // 通知订阅者队列里的watcher进行视图更新
         dep.notify({
           type: TriggerOpTypes.SET,
           target: obj,

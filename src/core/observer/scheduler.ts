@@ -75,6 +75,10 @@ function flushSchedulerQueue() {
   //    user watchers are created before the render watcher)
   // 3. If a component is destroyed during a parent component's watcher run,
   //    its watchers can be skipped.
+
+  // 1. 对队列做了由小到大的排序，因为父组建的创建过程是先于子的，所以watcher的创建也是先父后子
+  // 2. 用户自定义的watcher要优先于渲染watcher的执行；因为用户自定义watcher是在渲染watcher前创建的
+  // 3. 如果一个组件在其父组件的watcher执行期间被销毁，那么他对应的watcher都可以跳过，所以父组件的watcher应该先执行
   queue.sort((a, b) => a.id - b.id)
 
   // do not cache length because more watchers might be pushed
@@ -156,6 +160,7 @@ function callActivatedHooks(queue) {
  */
 export function queueWatcher(watcher: Watcher) {
   const id = watcher.id
+  // 防止添加重复的watcher
   if (has[id] != null) {
     return
   }

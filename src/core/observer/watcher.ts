@@ -122,10 +122,16 @@ export default class Watcher implements DepTarget {
    * Evaluate the getter, and re-collect dependencies.
    */
   get() {
+    // 将当前的Watcher赋给Dep.target
     pushTarget(this)
     let value
     const vm = this.vm
     try {
+      // 这里调用getter，也就是执行vm.update(vm.render)
+      // vm.render会生成vnode，访问响应式数据，就会触发get进行依赖收集
+      // vm.update是将vnode渲染成真实的dom，里面会执行patch方法
+      // patch方法会使用diff算法对比新旧vnode，然后计算出对真实dom的最小操作来修改dom更新视图
+      // Dep.target就是渲染Watcher，dep就可以将watcher放入subs订阅者队列中
       value = this.getter.call(vm, vm)
     } catch (e: any) {
       if (this.user) {
@@ -201,6 +207,8 @@ export default class Watcher implements DepTarget {
    */
   run() {
     if (this.active) {
+      // 获取当前的值
+      // 触发视图更新
       const value = this.get()
       if (
         value !== this.value ||
@@ -213,6 +221,8 @@ export default class Watcher implements DepTarget {
         // set new value
         const oldValue = this.value
         this.value = value
+        // cb是用户watch是传进来的回调函数
+        // 会传入value和oldValue，所以在函数中能获得新值和旧值
         if (this.user) {
           const info = `callback for watcher "${this.expression}"`
           invokeWithErrorHandling(
