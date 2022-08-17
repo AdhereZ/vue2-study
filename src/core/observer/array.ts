@@ -24,9 +24,11 @@ const methodsToPatch = [
  */
 methodsToPatch.forEach(function (method) {
   // cache original method
+  // 调用数组真正的方法
   const original = arrayProto[method]
   def(arrayMethods, method, function mutator(...args) {
     const result = original.apply(this, args)
+    // 该数组的ob属性
     const ob = this.__ob__
     let inserted
     switch (method) {
@@ -38,7 +40,10 @@ methodsToPatch.forEach(function (method) {
         inserted = args.slice(2)
         break
     }
+    // inserted代表有数据插入，对新插入的数据进行observe
     if (inserted) ob.observeArray(inserted)
+
+    // 通知视图更新
     // notify change
     if (__DEV__) {
       ob.dep.notify({

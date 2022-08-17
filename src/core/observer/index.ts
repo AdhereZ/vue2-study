@@ -47,12 +47,14 @@ export class Observer {
     this.vmCount = 0
     def(value, '__ob__', this)
     if (isArray(value)) {
+      // 将数组对象的__proto指向Array重写七种方法的prototype
       if (hasProto) {
         protoAugment(value, arrayMethods)
       } else {
         copyAugment(value, arrayMethods, arrayKeys)
       }
       if (!shallow) {
+        // 如果数组中的元素是对象则变为响应式对象
         this.observeArray(value)
       }
     } else {

@@ -70,8 +70,8 @@ export default {
   abstract: true,
 
   props: {
-    include: patternTypes,
-    exclude: patternTypes,
+    include: patternTypes,  // 缓存白名单
+    exclude: patternTypes,  // 缓存黑名单
     max: [String, Number]
   },
 
@@ -96,18 +96,19 @@ export default {
   },
 
   created() {
-    this.cache = Object.create(null)
-    this.keys = []
+    this.cache = Object.create(null)  // 缓存虚拟dom
+    this.keys = []  // 缓存的虚拟dom的键的集合
   },
 
   destroyed() {
-    for (const key in this.cache) {
+    for (const key in this.cache) {  // 删除所有缓存，不只是清空cache数组，还要调用每个组件的destroy
       pruneCacheEntry(this.cache, key, this.keys)
     }
   },
 
   mounted() {
     this.cacheVNode()
+    // 监听黑白名单的变化
     this.$watch('include', val => {
       pruneCache(this, name => matches(val, name))
     })
